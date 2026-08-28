@@ -16,14 +16,21 @@ A [Paseo](https://paseo.sh) plugin that lets you toggle and switch sidebar displ
 
 ## Installation
 
+Install directly from Git:
+
 ```bash
-git clone https://github.com/nerveband/paseo-display-switcher.git ~/src/tools/paseo-display-switcher
-cd ~/src/tools/paseo-display-switcher
-npm install
-npm run typecheck
-paseo plugin install "$PWD"
+paseo plugin add nerveband/paseo-display-switcher
 paseo plugin ls
 ```
+
+Check and apply updates:
+
+```bash
+paseo plugin status paseo-display-switcher
+paseo plugin update paseo-display-switcher
+```
+
+For local development, clone the repository, run `npm install` and `npm run typecheck`, then use `paseo plugin install "$PWD"`.
 
 ## Usage
 
