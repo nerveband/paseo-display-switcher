@@ -1,17 +1,17 @@
-import type { PluginContext } from "@getpaseo/plugin";
-import { MainSurface, switchDisplayListing } from "./main.client";
+import type { PluginClientContext } from "@getpaseo/plugin/client";
+import { MainSurface, switchDisplayListing } from "./client/main";
 
-export default function contribute(plugin: PluginContext) {
-  plugin.addSurface("main", MainSurface);
+export default function contribute(client: PluginClientContext) {
+  client.addSurface("main", MainSurface);
 
-  plugin.addSidebarItem({
+  client.addSidebarItem({
     id: "display-switcher",
     title: "Display Switcher",
     icon: "SlidersHorizontal",
     surface: "main",
   });
 
-  plugin.addCommandCenterItem({
+  client.addCommandCenterItem({
     id: "switch-status-listing",
     title: "Display: Switch to Status Listing",
     icon: "ListFilter",
@@ -22,7 +22,7 @@ export default function contribute(plugin: PluginContext) {
     },
   });
 
-  plugin.addCommandCenterItem({
+  client.addCommandCenterItem({
     id: "switch-project-listing",
     title: "Display: Switch to Project Listing",
     icon: "FolderGit2",
@@ -33,7 +33,7 @@ export default function contribute(plugin: PluginContext) {
     },
   });
 
-  plugin.addCommandCenterItem({
+  client.addCommandCenterItem({
     id: "toggle-display-listing",
     title: "Display: Toggle Listing (Project / Status)",
     icon: "SlidersHorizontal",

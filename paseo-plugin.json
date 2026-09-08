@@ -1,3 +1,6 @@
 {
-  "id": "paseo-display-switcher"
+  "id": "paseo-display-switcher",
+  "requirements": {
+    "paseo": ">=0.8.0"
+  }
 }
