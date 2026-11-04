@@ -1,14 +1,23 @@
-import type { PluginClientContext } from "@getpaseo/plugin/client";
+import type { PluginClientContext, PluginSidebarItemProps } from "@getpaseo/plugin/client";
+import { SidebarRow } from "@getpaseo/plugin/client/ui";
 import { MainSurface, switchDisplayListing } from "./client/main";
 
-export default function contribute(client: PluginClientContext) {
-  client.addSurface("main", MainSurface);
+function DisplaySwitcherItem({ currentScreen, openScreen }: PluginSidebarItemProps) {
+  return (
+    <SidebarRow
+      icon="SlidersHorizontal"
+      active={currentScreen?.screenId === "main"}
+      onPress={() => openScreen({ screenId: "main" })}
+    />
+  );
+}
 
-  client.addSidebarItem({
+export default function contribute(client: PluginClientContext) {
+  client.addScreen({ id: "main", title: "Display Switcher", Component: MainSurface });
+  client.addSidebarHeaderItem({
     id: "display-switcher",
     title: "Display Switcher",
-    icon: "SlidersHorizontal",
-    surface: "main",
+    Component: DisplaySwitcherItem,
   });
 
   client.addCommandCenterItem({

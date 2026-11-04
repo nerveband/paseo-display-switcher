@@ -4,14 +4,14 @@ A [Paseo](https://paseo.sh) plugin that lets you toggle and switch sidebar displ
 
 ## Features
 
-- **Keyboard Shortcuts:** Assign custom key combinations (e.g. `Option+P`, `Cmd+Option+1`, `Ctrl+Alt+S`) to toggle or switch display listings directly.
+- **Keyboard Shortcuts:** Assign custom key combinations (e.g. `Option+P`, `Cmd+Shift+1`, `Cmd+Shift+2`, `Ctrl+Alt+S`) to toggle or switch display listings directly. Avoid `Cmd+Digit` and `Cmd+Option+Digit`: Paseo 0.15 binds them to workspace and tab jumps.
 - **Command Center Actions:** Search and trigger display modes from the Command Center (`⌘K` / `Ctrl+K` -> `Display: Switch to Status Listing`, `Display: Switch to Project Listing`, `Display: Toggle Listing`).
 - **Sidebar Surface:** An in-app configuration surface under the sidebar item to view, record, or clear shortcuts.
 - **Accurate State Grounding:** Reads and verifies against Paseo's persisted sidebar view store (`sidebar-view`), avoiding race conditions and redundant menu cycles.
 
 ## Requirements
 
-- Paseo daemon (0.5.0+) with `pluginsEnabled: true` in `~/.paseo/config.json`.
+- Paseo 0.15.0 or later (the plugin uses the `addScreen` / `addSidebarHeaderItem` client API).
 - Node.js 18+.
 
 ## Installation
@@ -26,7 +26,7 @@ paseo plugin ls
 Check and apply updates:
 
 ```bash
-paseo plugin status paseo-display-switcher
+paseo plugin update paseo-display-switcher --check
 paseo plugin update paseo-display-switcher
 ```
 

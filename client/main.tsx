@@ -878,7 +878,7 @@ export function MainSurface({ theme, layout }: PluginSurfaceProps) {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>How to configure shortcuts</Text>
         <Text style={styles.description}>
-          • Click <Text style={styles.code}>Record</Text>, then press your desired modifier combination (e.g. <Text style={styles.code}>Cmd+Option+1</Text>, <Text style={styles.code}>Option+P</Text>, <Text style={styles.code}>Ctrl+Alt+S</Text>).{"\n"}
+          • Click <Text style={styles.code}>Record</Text>, then press your desired modifier combination (e.g. <Text style={styles.code}>Cmd+Shift+1</Text>, <Text style={styles.code}>Option+P</Text>, <Text style={styles.code}>Ctrl+Alt+S</Text>). Avoid <Text style={styles.code}>Cmd+Digit</Text> and <Text style={styles.code}>Cmd+Option+Digit</Text>: Paseo uses them to jump between workspaces and tabs.{"\n"}
           • Click <Text style={styles.code}>Remove</Text> to delete/unassign any shortcut.{"\n"}
           • Press <Text style={styles.code}>Esc</Text> while recording to cancel.{"\n"}
           • Command Center (<Text style={styles.code}>⌘K</Text> → <Text style={styles.code}>status</Text> / <Text style={styles.code}>project</Text>) is also always available.
