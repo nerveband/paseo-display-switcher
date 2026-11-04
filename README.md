@@ -1,57 +1,63 @@
 # Paseo Display Switcher
 
-A [Paseo](https://paseo.sh) plugin that lets you toggle and switch sidebar display modes (Project listing vs. Status listing) via keyboard shortcuts and the Command Center (`⌘K` / `Ctrl+K`).
+A [Paseo](https://paseo.sh) plugin that switches the sidebar between Project listing and Status listing with one key press.
 
-## Features
+## What it does
 
-- **Keyboard Shortcuts:** Assign custom key combinations (e.g. `Option+P`, `Cmd+Shift+1`, `Cmd+Shift+2`, `Ctrl+Alt+S`) to toggle or switch display listings directly. Avoid `Cmd+Digit` and `Cmd+Option+Digit`: Paseo 0.15 binds them to workspace and tab jumps.
-- **Command Center Actions:** Search and trigger display modes from the Command Center (`⌘K` / `Ctrl+K` -> `Display: Switch to Status Listing`, `Display: Switch to Project Listing`, `Display: Toggle Listing`).
-- **Sidebar Surface:** An in-app configuration surface under the sidebar item to view, record, or clear shortcuts.
-- **Accurate State Grounding:** Reads and verifies against Paseo's persisted sidebar view store (`sidebar-view`), avoiding race conditions and redundant menu cycles.
+- **Keyboard shortcuts.** Pick your own keys for three actions: switch to Status, switch to Project, or toggle between them. For example, `Cmd+Shift+2` for Status and `Cmd+Shift+1` for Project.
+- **Command Center.** Press `Cmd+K` (or `Ctrl+K` on Linux and Windows) and type `status`, `project`, or `toggle`.
+- **Settings screen.** Open **Display Switcher** in the sidebar to record, change, or remove shortcuts, or turn all shortcuts off.
+
+The plugin checks Paseo's saved sidebar setting after each switch, so it knows the switch worked.
+
+## Pick shortcuts that are free
+
+Paseo 0.15 already uses `Cmd+1` to `Cmd+9` to jump between workspaces, and `Cmd+Option+1` to `Cmd+Option+9` to jump between tabs. Don't use those. `Cmd+Shift+1` and `Cmd+Shift+2` are free in Paseo and macOS. Screenshot apps often use `Cmd+Shift+3`, `4`, and `5`.
 
 ## Requirements
 
-- Paseo 0.15.0 or later (the plugin uses the `addScreen` / `addSidebarHeaderItem` client API).
-- Node.js 18+.
+- Paseo 0.15.0 or later.
+- Node.js 18 or later, only if you work on the code.
 
-## Installation
-
-Install directly from Git:
+## Install
 
 ```bash
-paseo plugin add nerveband/paseo-display-switcher
+paseo plugin install git:nerveband/paseo-display-switcher
 paseo plugin ls
 ```
 
-Check and apply updates:
+To check for updates and install them:
 
 ```bash
 paseo plugin update paseo-display-switcher --check
 paseo plugin update paseo-display-switcher
 ```
 
-For local development, clone the repository, run `npm install` and `npm run typecheck`, then use `paseo plugin install "$PWD"`.
+## Set up your shortcuts
 
-## Usage
+1. Open **Display Switcher** in the sidebar.
+2. Click **Record** next to an action, then press the keys you want.
+3. Click **Remove** to clear a shortcut.
+4. Click **Enabled** to turn all shortcuts off. Click it again to turn them back on.
 
-### 1. Command Center
-Press **`⌘K`** (macOS) or **`Ctrl+K`** (Linux/Windows) anywhere in Paseo and type:
-- `status` -> **`Display: Switch to Status Listing`**
-- `project` -> **`Display: Switch to Project Listing`**
-- `toggle` -> **`Display: Toggle Listing (Project / Status)`**
+Shortcuts are saved in the Paseo app on each computer, so set them once per machine.
 
-### 2. Keyboard Shortcuts
-- Open **Display Switcher** from the sidebar.
-- Click **Record** on any action and press your desired key combination.
-- Click **Remove** to unbind any shortcut.
-- Toggle the **Enabled / Disabled** switch to enable or disable global shortcut capture.
-
-## Development
+## Work on the code
 
 ```bash
-npm run typecheck                           # TypeScript verification
-paseo plugin reload paseo-display-switcher  # Apply changes live
-paseo plugin logs paseo-display-switcher    # Inspect plugin output
+git clone https://github.com/nerveband/paseo-display-switcher.git
+cd paseo-display-switcher
+npm install
+npm run typecheck
+paseo plugin install "$PWD"
+```
+
+After you change the code:
+
+```bash
+npm run typecheck
+paseo plugin reload paseo-display-switcher
+paseo plugin logs paseo-display-switcher
 ```
 
 ## License
