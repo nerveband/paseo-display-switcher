@@ -1,14 +1,85 @@
 import type { PluginClientContext, PluginSidebarItemProps } from "@getpaseo/plugin/client";
-import { SidebarRow } from "@getpaseo/plugin/client/ui";
-import { MainSurface, switchDisplayListing } from "./client/main";
+import { Icon, SidebarRow } from "@getpaseo/plugin/client/ui";
+import { useState } from "react";
+import { Pressable, Text, View } from "react-native";
+import {
+  MainSurface,
+  switchDisplayListing,
+  useCurrentGroupMode,
+  useSidebarSelectorEnabled,
+} from "./client/main";
 
-function DisplaySwitcherItem({ currentScreen, openScreen }: PluginSidebarItemProps) {
+function DisplaySwitcherItem({ currentScreen, openScreen, theme, layout }: PluginSidebarItemProps) {
+  const [rowWidth, setRowWidth] = useState(0);
+  const showSelector = useSidebarSelectorEnabled();
+  const currentMode = useCurrentGroupMode(showSelector);
+  const showOptionLabels = !layout.compact && rowWidth >= 420;
+
+  const openSettings = () => openScreen({ screenId: "main" });
+
+  const selector = showSelector ? (
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 4, paddingRight: 8 }}>
+      <Pressable
+        accessibilityRole="radio"
+        accessibilityState={{ checked: currentMode === "project" }}
+        accessibilityLabel="Project view"
+        onPress={() => void switchDisplayListing("project")}
+        style={{ flexDirection: "row", alignItems: "center", gap: 4, padding: 6, borderRadius: 6 }}
+      >
+        <Icon
+          name="FolderTree"
+          size={16}
+          color={currentMode === "project" ? theme.colors.accent : theme.colors.foregroundMuted}
+        />
+        {showOptionLabels ? (
+          <Text
+            style={{
+              color: currentMode === "project" ? theme.colors.foreground : theme.colors.foregroundMuted,
+              fontSize: 12,
+            }}
+          >
+            Project
+          </Text>
+        ) : null}
+      </Pressable>
+      <Pressable
+        accessibilityRole="radio"
+        accessibilityState={{ checked: currentMode === "status" }}
+        accessibilityLabel="Status view"
+        onPress={() => void switchDisplayListing("status")}
+        style={{ flexDirection: "row", alignItems: "center", gap: 4, padding: 6, borderRadius: 6 }}
+      >
+        <Icon
+          name="List"
+          size={16}
+          color={currentMode === "status" ? theme.colors.accent : theme.colors.foregroundMuted}
+        />
+        {showOptionLabels ? (
+          <Text
+            style={{
+              color: currentMode === "status" ? theme.colors.foreground : theme.colors.foregroundMuted,
+              fontSize: 12,
+            }}
+          >
+            Status
+          </Text>
+        ) : null}
+      </Pressable>
+    </View>
+  ) : null;
+
   return (
-    <SidebarRow
-      icon="SlidersHorizontal"
-      active={currentScreen?.screenId === "main"}
-      onPress={() => openScreen({ screenId: "main" })}
-    />
+    <View
+      style={{ width: "100%" }}
+      onLayout={({ nativeEvent }) => setRowWidth(nativeEvent.layout.width)}
+    >
+      <SidebarRow
+        icon="SlidersHorizontal"
+        active={currentScreen?.screenId === "main"}
+        onPress={openSettings}
+        trailing={selector}
+      />
+    </View>
   );
 }
 
