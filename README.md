@@ -7,6 +7,7 @@ A [Paseo](https://paseo.sh) plugin that switches the sidebar between Project lis
 - **Keyboard shortcuts.** Pick your own keys for three actions: switch to Status, switch to Project, or toggle between them. For example, `Cmd+Shift+2` for Status and `Cmd+Shift+1` for Project.
 - **Command Center.** Press `Cmd+K` (or `Ctrl+K` on Linux and Windows) and type `status`, `project`, or `toggle`.
 - **Settings screen.** Open **Display Switcher** in the sidebar to record, change, or remove shortcuts, or turn all shortcuts off.
+- **Sidebar selector.** Optionally add Project and Status controls beside the settings icon for one-click switching. Text labels appear when the sidebar is wide enough; narrow sidebars keep the icons only.
 
 The plugin checks Paseo's saved sidebar setting after each switch, so it knows the switch worked.
 
@@ -39,6 +40,7 @@ paseo plugin update paseo-display-switcher
 2. Click **Record** next to an action, then press the keys you want.
 3. Click **Remove** to clear a shortcut.
 4. Click **Enabled** to turn all shortcuts off. Click it again to turn them back on.
+5. Enable **Show mode selector in the sidebar** to show Project and Status controls in the settings row. The selected view is highlighted, and the settings icon still opens the shortcut screen.
 
 Shortcuts are saved in the Paseo app on each computer, so set them once per machine.
 

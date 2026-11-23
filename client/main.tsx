@@ -3,9 +3,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
 const STORAGE_KEY = "@paseo:display-switcher:config";
+const CONFIG_CHANGE_EVENT = "paseo-display-switcher:config-change";
+const MODE_CHANGE_EVENT = "paseo-display-switcher:mode-change";
 
 export interface ShortcutConfig {
   enabled: boolean;
+  showSidebarSelector: boolean;
   toggleShortcut: string;
   statusShortcut: string;
   projectShortcut: string;
@@ -13,6 +16,7 @@ export interface ShortcutConfig {
 
 const DEFAULT_CONFIG: ShortcutConfig = {
   enabled: true,
+  showSidebarSelector: false,
   toggleShortcut: "Option+P",
   statusShortcut: "",
   projectShortcut: "",
@@ -67,7 +71,7 @@ function saveConfig(config: ShortcutConfig): void {
   }
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-    window.dispatchEvent(new CustomEvent("paseo-display-switcher:config-change", { detail: config }));
+    window.dispatchEvent(new CustomEvent(CONFIG_CHANGE_EVENT, { detail: config }));
   } catch {
     // Ignore storage write errors
   }
@@ -214,6 +218,7 @@ const GROUPING_SUBTRIGGER_SELECTOR = '[data-testid="sidebar-display-grouping"]';
 const SIDEBAR_VIEW_STORAGE_KEY = "sidebar-view";
 
 type GroupMode = "project" | "status";
+type PersistedGroupMode = GroupMode | "label";
 
 const INTERACTIVE_SELECTOR =
   '[role="menuitem"], [role="button"], [role="radio"], [role="checkbox"], [role="option"], [role="menuitemradio"], [tabindex], button, a';
@@ -338,7 +343,7 @@ async function waitFor<T>(
  * Reads the live grouping mode from Paseo's persisted sidebar-view store
  * (zustand persist writes synchronously on every setGroupMode).
  */
-function readGroupMode(): GroupMode | "label" | null {
+function readGroupMode(): PersistedGroupMode | null {
   if (typeof localStorage === "undefined") {
     return null;
   }
@@ -352,6 +357,46 @@ function readGroupMode(): GroupMode | "label" | null {
   } catch {
     return null;
   }
+}
+
+export function useSidebarSelectorEnabled(): boolean {
+  const [enabled, setEnabled] = useState(() => loadConfig().showSidebarSelector);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const handleConfigChange = (event: Event) => {
+      const config = (event as CustomEvent<ShortcutConfig>).detail;
+      setEnabled(config.showSidebarSelector);
+    };
+    window.addEventListener(CONFIG_CHANGE_EVENT, handleConfigChange);
+    return () => window.removeEventListener(CONFIG_CHANGE_EVENT, handleConfigChange);
+  }, []);
+
+  return enabled;
+}
+
+export function useCurrentGroupMode(enabled: boolean): PersistedGroupMode | null {
+  const [mode, setMode] = useState(() => readGroupMode());
+
+  useEffect(() => {
+    if (!enabled || typeof window === "undefined") {
+      return;
+    }
+    const syncMode = () => setMode(readGroupMode());
+    window.addEventListener(MODE_CHANGE_EVENT, syncMode);
+    window.addEventListener("storage", syncMode);
+    const interval = setInterval(syncMode, 500);
+    syncMode();
+    return () => {
+      window.removeEventListener(MODE_CHANGE_EVENT, syncMode);
+      window.removeEventListener("storage", syncMode);
+      clearInterval(interval);
+    };
+  }, [enabled]);
+
+  return mode;
 }
 
 /**
@@ -436,6 +481,7 @@ export async function switchDisplayListing(
 
     // Already in the desired mode: nothing to do, and nothing to open.
     if (currentMode === desired) {
+      window.dispatchEvent(new Event(MODE_CHANGE_EVENT));
       return true;
     }
 
@@ -507,6 +553,7 @@ export async function switchDisplayListing(
       const verified = await waitFor(() => readGroupMode() === desired, 1000, 50);
       debugLog("verify attempt", attempt, readGroupMode());
       if (verified) {
+        window.dispatchEvent(new Event(MODE_CHANGE_EVENT));
         return true;
       }
       option = findGroupingOption(desired);
@@ -515,7 +562,11 @@ export async function switchDisplayListing(
       }
     }
 
-    return readGroupMode() === desired;
+    const switched = readGroupMode() === desired;
+    if (switched) {
+      window.dispatchEvent(new Event(MODE_CHANGE_EVENT));
+    }
+    return switched;
   } finally {
     // Only clean up UI we opened ourselves; never Escape the user's own popovers.
     if (openedMenu) {
@@ -583,14 +634,14 @@ function setupGlobalShortcutListener(): () => void {
 
   const cleanup = () => {
     window.removeEventListener("keydown", handleKeyDown, { capture: true });
-    window.removeEventListener("paseo-display-switcher:config-change", handleConfigChange);
+    window.removeEventListener(CONFIG_CHANGE_EVENT, handleConfigChange);
     if (state[listenerKey] === cleanup) {
       delete state[listenerKey];
     }
   };
 
   window.addEventListener("keydown", handleKeyDown, { capture: true });
-  window.addEventListener("paseo-display-switcher:config-change", handleConfigChange);
+  window.addEventListener(CONFIG_CHANGE_EVENT, handleConfigChange);
   state[listenerKey] = cleanup;
   return cleanup;
 }
@@ -653,6 +704,15 @@ export function MainSurface({ theme, layout }: PluginSurfaceProps) {
     setConfig(updated);
     saveConfig(updated);
     setFeedback(updated.enabled ? "Keyboard shortcuts enabled." : "Keyboard shortcuts disabled.");
+  };
+
+  const toggleSidebarSelector = () => {
+    const updated = { ...config, showSidebarSelector: !config.showSidebarSelector };
+    setConfig(updated);
+    saveConfig(updated);
+    setFeedback(
+      updated.showSidebarSelector ? "Sidebar mode selector enabled." : "Sidebar mode selector disabled.",
+    );
   };
 
   const styles = useMemo(
@@ -829,6 +889,25 @@ export function MainSurface({ theme, layout }: PluginSurfaceProps) {
         >
           <Text style={config.enabled ? styles.buttonText : styles.buttonSecondaryText}>
             {config.enabled ? "Enabled" : "Disabled"}
+          </Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.row}>
+        <View style={styles.actionInfo}>
+          <Text style={styles.actionTitle}>Show mode selector in the sidebar</Text>
+          <Text style={styles.actionDescription}>
+            Add one-click Project and Status controls beside the settings button.
+          </Text>
+        </View>
+        <Pressable
+          accessibilityRole="switch"
+          accessibilityState={{ checked: config.showSidebarSelector }}
+          onPress={toggleSidebarSelector}
+          style={config.showSidebarSelector ? styles.button : styles.buttonSecondary}
+        >
+          <Text style={config.showSidebarSelector ? styles.buttonText : styles.buttonSecondaryText}>
+            {config.showSidebarSelector ? "Enabled" : "Disabled"}
           </Text>
         </Pressable>
       </View>
